@@ -6,14 +6,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.reddit.R
-import com.example.reddit.databinding.ActivityLoginPageBinding
-import com.example.reddit.databinding.ActivityMainBinding
-import com.example.reddit.mainpage.mainpage
 
-class LoginPage : AppCompatActivity() {
-    private val binding: ActivityLoginPageBinding by lazy {
-        ActivityLoginPageBinding.inflate(layoutInflater)
+import com.example.reddit.R
+import com.example.reddit.databinding.ActivitySignUpBinding
+
+
+class SignUpActivity : AppCompatActivity() {
+    private val binding: ActivitySignUpBinding by lazy {
+        ActivitySignUpBinding.inflate(layoutInflater)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,17 +25,12 @@ class LoginPage : AppCompatActivity() {
             insets
         }
         binding.loginBtn.setOnClickListener {
-            val intent= Intent(this@LoginPage, mainpage::class.java)
-            startActivity(intent)
-            finish()
-        }
-        binding.signUpBtn.setOnClickListener {
-            val intent = Intent(this@LoginPage, SignUpActivity::class.java)
+            val intent = Intent(this@SignUpActivity, LoginPage::class.java )
             startActivity(intent)
             finish()
         }
         binding.emailBtn.setOnClickListener {
-            val intent = Intent(this@LoginPage, EmailLoginPage::class.java)
+            val intent = Intent(this@SignUpActivity, emailSignUpActivity::class.java )
             startActivity(intent)
             finish()
         }
