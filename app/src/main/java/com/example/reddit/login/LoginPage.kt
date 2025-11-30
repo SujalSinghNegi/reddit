@@ -9,7 +9,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.reddit.R
 import com.example.reddit.databinding.ActivityLoginPageBinding
 import com.example.reddit.databinding.ActivityMainBinding
-import com.example.reddit.mainpage.mainpage
+import com.example.reddit.mainpage.MainPage
+
 
 class LoginPage : AppCompatActivity() {
     private val binding: ActivityLoginPageBinding by lazy {
@@ -25,7 +26,7 @@ class LoginPage : AppCompatActivity() {
             insets
         }
         binding.loginBtn.setOnClickListener {
-            val intent= Intent(this@LoginPage, mainpage::class.java)
+            val intent= Intent(this@LoginPage, MainPage::class.java)
             startActivity(intent)
             finish()
         }

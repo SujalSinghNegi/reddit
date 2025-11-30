@@ -10,6 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.reddit.MainActivity
 import com.example.reddit.R
 import com.example.reddit.databinding.ActivityEmailLoginPageBinding
+import com.example.reddit.mainpage.MainPage
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 
@@ -38,7 +39,7 @@ class EmailLoginPage : AppCompatActivity() {
                     .addOnCompleteListener { task ->
                         if(task.isSuccessful){
                             Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-                            startActivity((Intent(this, MainActivity::class.java)))
+                            startActivity((Intent(this, MainPage::class.java)))
                             finish()
                         }else{
                             Toast.makeText(this, "Error : ${task.exception?.message}", Toast.LENGTH_SHORT).show()
