@@ -102,32 +102,28 @@ class MainPage : AppCompatActivity() {
     }
 
 
-    // check this function carefully this is a test function
+    // check this function carefully this is a test function , /, uploads dekhna
 
     private fun loadImagesFromStorage() {
-        val folderRef = storage.reference.child("uploads/${auth.currentUser!!.uid}")
-        val container = binding.imageContainer // Reference to the LinearLayout above
+        val folderRef = storage.reference.child("/")
+        val container = binding.imageContainer
 
         folderRef.listAll().addOnSuccessListener { result ->
 
             for (fileRef in result.items) {
                 fileRef.downloadUrl.addOnSuccessListener { uri ->
 
-                    // 1. Create a new ImageView programmatically
                     val imageView = ImageView(this)
 
-                    // 2. Set size (Width: 150dp, Height: Match Parent)
                     val params = LinearLayout.LayoutParams(400, LinearLayout.LayoutParams.MATCH_PARENT)
-                    params.setMargins(10, 0, 10, 0) // Add spacing between images
+                    params.setMargins(10, 0, 10, 0)
                     imageView.layoutParams = params
                     imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
-                    // 3. Load Image using Coil
                     imageView.load(uri) {
                         placeholder(R.drawable.ic_launcher_background)
                     }
 
-                    // 4. Add it to the container
                     container.addView(imageView)
                 }
             }
