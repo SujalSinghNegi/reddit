@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Reddit</string>
+    <string name="default_web_client_id">749075529146-acn9prom81b8mvuv96ljgvcrn6e1esia.apps.googleusercontent.com</string>
+
 </resources>
