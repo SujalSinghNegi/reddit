@@ -1,5 +1,6 @@
 package com.example.reddit.mainpage
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageView
@@ -10,14 +11,21 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
 import coil.load
 
 import com.example.reddit.R
 import com.example.reddit.databinding.ActivityMainPageBinding
+import com.example.reddit.login.LoginPage
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
 
@@ -92,7 +100,9 @@ class MainPage : AppCompatActivity() {
     }
 
 
-
+binding.logOutBtn.setOnClickListener {
+    signOutAndStartOver(this)
+}
 
 
 
@@ -126,6 +136,25 @@ class MainPage : AppCompatActivity() {
 
                     container.addView(imageView)
                 }
+            }
+        }
+    }
+
+    fun signOutAndStartOver(context: android.content.Context) {
+        val credentialManager = CredentialManager.create(context)
+
+        Firebase.auth.signOut()
+
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                credentialManager.clearCredentialState(ClearCredentialStateRequest())
+            val intent = Intent(context, LoginPage::class.java)
+                startActivity(intent)
+
+
+            } catch (e: Exception) {
+                // Handle error (rare)
+                e.printStackTrace()
             }
         }
     }
