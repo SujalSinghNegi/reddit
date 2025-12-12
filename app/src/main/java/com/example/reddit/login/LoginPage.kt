@@ -1,6 +1,5 @@
 package com.example.reddit.login
 
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,7 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.credentials.Credential
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -18,18 +16,14 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
 import com.example.reddit.R
 import com.example.reddit.databinding.ActivityLoginPageBinding
-import com.example.reddit.databinding.ActivityMainBinding
 import com.example.reddit.mainpage.MainPage
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-import com.google.firebase.Firebase
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
 
@@ -66,7 +60,7 @@ class LoginPage : AppCompatActivity() {
             finish()
         }
         binding.phoneBtn.setOnClickListener {
-            val intent = Intent(this@LoginPage, phoneSignUpActivity::class.java)
+            val intent = Intent(this@LoginPage, PhoneSignUpActivity::class.java)
             startActivity(intent)
             finish()
         }
@@ -84,8 +78,12 @@ class LoginPage : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         val currentUser = auth.currentUser
-        if(currentUser != null) updateUI(currentUser)
+        if (currentUser != null) {
+            // Don't just update UI, check the DB to see if they have a profile
+            checkUserDatabase(currentUser)
+        }
     }
+
 private fun signInWithGoogle(){
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false) // Set true to only show accounts already signed in to the app
@@ -138,27 +136,13 @@ private fun signInWithGoogle(){
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // 1. Get the AuthResult
-                    val authResult = task.result
                     val user = auth.currentUser
-
-                    // 2. Check the isNewUser flag
-                    val isNewUser = authResult?.additionalUserInfo?.isNewUser == true
-
-                    if (isNewUser) {
-                        Log.d("Auth", "This is a NEW USER (Signup)")
-                        // TODO: Create a user document in Firestore/Realtime DB
-                        // TODO: Show an onboarding screen or "Complete Profile" page
-                        handleNewUserSignup(user)
-                    } else {
-                        Log.d("Auth", "This is an EXISTING USER (Login)")
-                        // TODO: Fetch user data and go to Home Screen
-                        updateUI(user)
+                    if (user != null) {
+                        // Success! Now let the database logic decide next steps
+                        checkUserDatabase(user)
                     }
-
                 } else {
                     Toast.makeText(baseContext, "Authentication Failed.", Toast.LENGTH_SHORT).show()
-                    updateUI(null)
                 }
             }
     }
@@ -180,5 +164,74 @@ private fun signInWithGoogle(){
             startActivity(Intent(this, MainPage::class.java))
             finish()
         }
+    }
+
+
+
+    // ---------------------------------------------------------
+    // CORE LOGIC: Check if User Exists in Database
+    // ---------------------------------------------------------
+    private fun checkUserDatabase(user: FirebaseUser) {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(user.uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // Scenario 1: User is already in DB -> Go to Home
+                    Log.d("Auth", "User found in Firestore, going to Main Page")
+                    goToMainPage()
+                } else {
+                    // Scenario 2: User is Authenticated but NOT in DB
+                    // This happens for new users or if the previous save failed
+
+                    if (user.displayName != null && user.displayName!!.isNotEmpty()) {
+                        // If it's a Google User, we have their name! Auto-save them.
+                        saveGoogleUserToFirestore(user)
+                    } else {
+                        // If it's a Phone/Email user with no name yet -> Go to Profile Setup
+                        goToProfileSetup()
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error checking database: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // ---------------------------------------------------------
+    // HELPER: Auto-Save Google Data to Firestore
+    // ---------------------------------------------------------
+    private fun saveGoogleUserToFirestore(user: FirebaseUser) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Prepare the data using your UserModel
+        // Make sure you created the UserModel.kt file as discussed previously!
+        val userMap = hashMapOf(
+            "uid" to user.uid,
+            "name" to (user.displayName ?: "No Name"),
+            "email" to (user.email ?: ""),
+            "phoneNumber" to (user.phoneNumber ?: ""),
+            "profileImage" to (user.photoUrl?.toString() ?: "")
+        )
+
+        db.collection("users").document(user.uid).set(userMap)
+            .addOnSuccessListener {
+                Log.d("Auth", "Google User saved to Firestore!")
+                goToMainPage()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to save profile: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Navigation Helpers to keep code clean
+    private fun goToMainPage() {
+        startActivity(Intent(this, MainPage::class.java))
+        finish()
+    }
+
+    private fun goToProfileSetup() {
+        startActivity(Intent(this, ProfileSetupActivity::class.java))
+        finish()
     }
 }

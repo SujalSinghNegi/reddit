@@ -1,6 +1,5 @@
 package com.example.reddit.login
 
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,7 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.credentials.Credential
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -19,18 +17,13 @@ import androidx.lifecycle.lifecycleScope
 
 import com.example.reddit.R
 import com.example.reddit.databinding.ActivitySignUpBinding
-import com.example.reddit.login.LoginPage
 import com.example.reddit.mainpage.MainPage
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.auth
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -57,12 +50,12 @@ class SignUpActivity : AppCompatActivity() {
             finish()
         }
         binding.emailBtn.setOnClickListener {
-            val intent = Intent(this@SignUpActivity, emailSignUpActivity::class.java)
+            val intent = Intent(this@SignUpActivity, EmailSignUpActivity::class.java)
             startActivity(intent)
             finish()
         }
         binding.phoneBtn.setOnClickListener {
-            val intent = Intent(this@SignUpActivity, phoneSignUpActivity::class.java)
+            val intent = Intent(this@SignUpActivity, PhoneSignUpActivity::class.java)
             startActivity(intent)
             finish()
         }

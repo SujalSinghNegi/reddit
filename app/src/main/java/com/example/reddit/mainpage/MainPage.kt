@@ -1,161 +1,150 @@
 package com.example.reddit.mainpage
 
 import android.content.Intent
-import android.net.Uri
+
 import android.os.Bundle
-import android.widget.ImageView
-import android.widget.LinearLayout
+import android.view.Menu
+import android.view.MenuItem
+
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
+
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.content.ContextCompat.startActivity
+
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
-import coil.load
-
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.reddit.PostAdapter
 import com.example.reddit.R
 import com.example.reddit.databinding.ActivityMainPageBinding
+
 import com.example.reddit.login.LoginPage
+import com.example.reddit.models.PostModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+
 import com.google.firebase.auth.auth
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.storage
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
-import java.util.UUID
 
-class MainPage : AppCompatActivity() {
+class MainPage : AppCompatActivity(), com.example.reddit.OnPostClickListener {
+
     private val binding: ActivityMainPageBinding by lazy {
         ActivityMainPageBinding.inflate(layoutInflater)
     }
-    private var imageFile: Uri? = null
-    private val getImageFromGallery = registerForActivityResult (ActivityResultContracts.GetContent() ) { uri: Uri? ->
-        if(uri != null){
-            imageFile = uri
-        }
-    }
-    private  val storage= FirebaseStorage.getInstance()
+
+    private lateinit var adapter: PostAdapter
+    private val postList = ArrayList<PostModel>()
     private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        setSupportActionBar(binding.toolbar)
         auth = FirebaseAuth.getInstance()
-        val user = auth.currentUser
 
-        binding.getImageBtn.setOnClickListener {
-            getImageFromGallery.launch("image/*")
+        // 1. Safety Check
+        if (auth.currentUser == null) {
+            goToLogin()
+            return
         }
-        binding.setImageBtn.setOnClickListener {
-            if(imageFile != null){
-                binding.imageView.setImageURI(imageFile)
-            }
-            //imageFile = null
 
-        }
-        binding.fromFirebase.setOnClickListener {
+        // 2. Setup RecyclerView
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
-            val storageRef = storage.reference.child("start.png")
+        // 2. Pass 'this' as the listener
+        adapter = PostAdapter(this, postList, this)
+        binding.recyclerView.adapter = adapter
 
-            storageRef.downloadUrl.addOnSuccessListener { uri ->
-                binding.imageView.load(uri){
-                    crossfade(true)
-                    placeholder(R.drawable.ic_launcher_background)
-                }
+        fetchPosts()
 
-
-            }.addOnFailureListener { exception ->
-                Toast.makeText(this, "Error : ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
-
-
-        }
-       binding.sendImage.setOnClickListener {
-           if(user!= null ){
-               val uniqueName = "${UUID.randomUUID()}.jpg"
-               val ref = storage.reference.child("uploads/${user.uid}/$uniqueName")
-               ref.putFile(imageFile!!)
-                   .addOnSuccessListener {
-                       Toast.makeText(this, "Image Uploaded", Toast.LENGTH_SHORT).show()
-                   }
-           }
-
-       }
-
-
-
-
-    binding.getAll.setOnClickListener {
-        loadImagesFromStorage()
-    }
-
-
-binding.logOutBtn.setOnClickListener {
-    signOutAndStartOver(this)
-}
-
-
-
-
-
-
-    }
-
-
-    // check this function carefully this is a test function , /, uploads dekhna
-
-    private fun loadImagesFromStorage() {
-        val folderRef = storage.reference.child("/")
-        val container = binding.imageContainer
-
-        folderRef.listAll().addOnSuccessListener { result ->
-
-            for (fileRef in result.items) {
-                fileRef.downloadUrl.addOnSuccessListener { uri ->
-
-                    val imageView = ImageView(this)
-
-                    val params = LinearLayout.LayoutParams(400, LinearLayout.LayoutParams.MATCH_PARENT)
-                    params.setMargins(10, 0, 10, 0)
-                    imageView.layoutParams = params
-                    imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-
-                    imageView.load(uri) {
-                        placeholder(R.drawable.ic_launcher_background)
-                    }
-
-                    container.addView(imageView)
-                }
-            }
+        // 4. FAB Button
+        binding.fabAddPost.setOnClickListener {
+            startActivity(Intent(this, AddPostActivity::class.java))
         }
     }
+    override fun onUpvoteClick(post: PostModel) {
+        Toast.makeText(this, "Upvoted: ${post.caption}", Toast.LENGTH_SHORT).show()
+        // TODO: Add Firestore Logic for Upvote
+    }
 
-    fun signOutAndStartOver(context: android.content.Context) {
-        val credentialManager = CredentialManager.create(context)
+    override fun onDownvoteClick(post: PostModel) {
+        Toast.makeText(this, "Downvoted", Toast.LENGTH_SHORT).show()
+        // TODO: Add Firestore Logic for Downvote
+    }
 
-        Firebase.auth.signOut()
+    override fun onCommentClick(post: PostModel) {
+        Toast.makeText(this, "Comment clicked", Toast.LENGTH_SHORT).show()
+        // TODO: Open Comment Activity
+    }
+    // --- Menu Logic ---
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
 
-        CoroutineScope(Dispatchers.Main).launch {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.action_logout) {
+            signOutAndStartOver()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    // --- Improved Sign Out Function ---
+    private fun signOutAndStartOver() {
+        // 1. Sign out from Firebase
+        auth.signOut()
+
+        // 2. Clear Credential Manager State (Google Session)
+        val credentialManager = CredentialManager.create(this)
+
+        lifecycleScope.launch {
             try {
                 credentialManager.clearCredentialState(ClearCredentialStateRequest())
-            val intent = Intent(context, LoginPage::class.java)
-                startActivity(intent)
-
-
             } catch (e: Exception) {
-                // Handle error (rare)
                 e.printStackTrace()
             }
+
+            // 3. Navigate after clearing state
+            Toast.makeText(this@MainPage, "Logged Out Successfully", Toast.LENGTH_SHORT).show()
+            goToLogin()
         }
+    }
+
+    private fun goToLogin() {
+        val intent = Intent(this, LoginPage::class.java)
+        // Clear Back Stack so user cannot press "Back" to return
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
+
+    private fun fetchPosts() {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("posts")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { value, error ->
+                if (error != null) {
+                    Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+
+                if (value != null) {
+                    postList.clear()
+                    for (document in value.documents) {
+                        val post = document.toObject(PostModel::class.java)
+                        if (post != null) {
+                            postList.add(post)
+                        }
+                    }
+                    adapter.notifyDataSetChanged()
+                }
+            }
     }
 }

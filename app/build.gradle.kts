@@ -59,6 +59,10 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-storage:20.3.0")
+    implementation("com.google.firebase:firebase-firestore:24.10.0")
 
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+// You likely already have firebase-auth
     implementation("io.coil-kt:coil:2.4.0")
 }

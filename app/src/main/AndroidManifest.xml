@@ -17,13 +17,19 @@
         android:theme="@style/Theme.Reddit"
         tools:targetApi="31">
         <activity
+            android:name=".login.ProfileSetupActivity"
+            android:exported="true" />
+        <activity
+            android:name=".mainpage.AddPostActivity"
+            android:exported="false" />
+        <activity
             android:name=".mainpage.MainPage"
             android:exported="false" />
         <activity
             android:name=".login.EmailLoginPage"
             android:exported="false" />
         <activity
-            android:name=".login.emailSignUpActivity"
+            android:name=".login.EmailSignUpActivity"
             android:exported="true" />
         <activity
             android:name=".login.SignUpActivity"
@@ -37,7 +43,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".login.LoginPage"
             android:exported="true" />
@@ -45,7 +50,7 @@
             android:name=".MainActivity"
             android:exported="true" />
         <activity
-            android:name=".login.phoneSignUpActivity"
+            android:name=".login.PhoneSignUpActivity"
             android:exported="true" />
     </application>
 
