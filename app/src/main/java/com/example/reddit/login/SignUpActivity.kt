@@ -61,6 +61,11 @@ class SignUpActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+        binding.phoneBtn.setOnClickListener {
+            val intent = Intent(this@SignUpActivity, phoneSignUpActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
 
         auth = FirebaseAuth.getInstance()
         credentialManager = CredentialManager.create(this)

@@ -65,8 +65,13 @@ class LoginPage : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+        binding.phoneBtn.setOnClickListener {
+            val intent = Intent(this@LoginPage, phoneSignUpActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
 
-        // 1. Initialize Firebase & Credential Manager
+        //  Initialize Firebase & Credential Manager
         auth = FirebaseAuth.getInstance()
         credentialManager = CredentialManager.create(this)
 
