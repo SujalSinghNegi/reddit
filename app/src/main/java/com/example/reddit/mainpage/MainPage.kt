@@ -69,7 +69,7 @@ class MainPage : AppCompatActivity(), com.example.reddit.OnPostClickListener {
         }
     }
     override fun onUpvoteClick(post: PostModel) {
-        Toast.makeText(this, "Upvoted: ${post.caption}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Upvoted", Toast.LENGTH_SHORT).show()
         // TODO: Add Firestore Logic for Upvote
     }
 
