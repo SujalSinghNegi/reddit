@@ -29,7 +29,7 @@ class SplashScreen : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
        // val loggedIN:Boolean = false
        lifecycleScope.launch {
-           delay(2000)
+           delay(500)
 
            if(auth.currentUser != null){
                val intent= Intent(this@SplashScreen, MainPage::class.java)
