@@ -44,10 +44,12 @@ class SignUpActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        var twiceClick : Int = 0
         binding.loginBtn.setOnClickListener {
             val intent = Intent(this@SignUpActivity, LoginPage::class.java)
             startActivity(intent)
-            finish()
+            if(twiceClick > 0) finish()
+            twiceClick++
         }
         binding.emailBtn.setOnClickListener {
             val intent = Intent(this@SignUpActivity, EmailSignUpActivity::class.java)

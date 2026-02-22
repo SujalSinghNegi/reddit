@@ -44,15 +44,17 @@ class LoginPage : AppCompatActivity() {
             insets
         }
 
-        binding.loginBtn.setOnClickListener {
-            val intent= Intent(this@LoginPage, MainPage::class.java)
-            startActivity(intent)
-            finish()
-        }
+//        binding.loginBtn.setOnClickListener {
+//            val intent= Intent(this@LoginPage, MainPage::class.java)
+//            startActivity(intent)
+//            finish()
+//        }
+        var twiceClick : Int = 0
         binding.signUpBtn.setOnClickListener {
             val intent = Intent(this@LoginPage, SignUpActivity::class.java)
             startActivity(intent)
-            finish()
+          if(twiceClick>0)  finish()
+            twiceClick++
         }
         binding.emailBtn.setOnClickListener {
             val intent = Intent(this@LoginPage, EmailLoginPage::class.java)
