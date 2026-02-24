@@ -5,65 +5,122 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
     tools:context=".login.PhoneSignUpActivity">
 
+    <ImageView
+        android:id="@+id/headerIcon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginTop="56dp"
+        android:background="@drawable/ic_otp"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+         />
+
     <TextView
-        android:id="@+id/textView7"
+        android:id="@+id/titleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="88dp"
-        android:text="Phone Sign Up Page"
-        android:textSize="34sp"
+        android:layout_marginTop="24dp"
+        android:fontFamily="sans-serif-black"
+        android:text="Enter your phone"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="28sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/headerIcon" />
 
-    <EditText
-        android:id="@+id/phoneNumber"
-        android:layout_width="223dp"
-        android:layout_height="39dp"
+    <TextView
+        android:id="@+id/subText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="We will send you a 6-digit confirmation code."
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleText" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/phoneInputLayout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:ems="10"
-        android:hint="phone number"
-
-        android:inputType="phone"
-
+        android:hint="Phone Number"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusTopStart="16dp"
+        app:prefixText="+91 "
+        app:prefixTextColor="?attr/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView7" />
+        app:layout_constraintTop_toBottomOf="@+id/subText"
+        app:layout_constraintWidth_percent="0.85">
 
-    <EditText
-        android:id="@+id/otp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="104dp"
-        android:ems="10"
-        android:inputType="numberPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/phoneNumber" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/phoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:maxLength="10" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/sendOtp"
+        style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:text="Send Otp"
-        app:layout_constraintEnd_toEndOf="@+id/phoneNumber"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/phoneNumber"
-        app:layout_constraintTop_toBottomOf="@+id/phoneNumber" />
+        android:layout_marginTop="8dp"
+        android:text="Send OTP"
+        android:textColor="?attr/colorPrimary"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/phoneInputLayout"
+        app:layout_constraintTop_toBottomOf="@+id/phoneInputLayout" />
 
-    <Button
-        android:id="@+id/verify"
+    <com.chaos.view.PinView
+        android:id="@+id/otp"
+        style="@style/PinWidget.PinView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="39dp"
-        android:text="Verify"
-        app:layout_constraintEnd_toEndOf="@+id/otp"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/otp"
-        app:layout_constraintTop_toBottomOf="@+id/otp" />
+        android:layout_marginTop="40dp"
+        android:cursorVisible="true"
+        android:inputType="numberPassword"
+        android:itemBackground="?attr/colorSurfaceVariant"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:cursorColor="?attr/colorPrimary"
+        app:hideLineWhenFilled="true"
+        app:itemCount="6"
+        app:itemHeight="56dp"
+        app:itemRadius="12dp"
+        app:itemSpacing="8dp"
+        app:itemWidth="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sendOtp"
+        app:lineColor="?attr/colorPrimary"
+        app:lineWidth="2dp"
+        app:viewType="rectangle" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/verify"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="48dp"
+        android:text="Verify &amp; Continue"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_percent="0.85" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

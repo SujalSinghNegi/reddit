@@ -67,4 +67,6 @@ dependencies {
     implementation("io.coil-kt:coil:2.4.0")
         // for no reCaptcha , it will check in background
     implementation("com.google.firebase:firebase-appcheck-playintegrity:19.0.2") // Check for the latest version
+
+    implementation("io.github.chaosleung:pinview:1.4.4")
 }
