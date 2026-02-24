@@ -67,6 +67,8 @@ dependencies {
     implementation("io.coil-kt:coil:2.4.0")
         // for no reCaptcha , it will check in background
     implementation("com.google.firebase:firebase-appcheck-playintegrity:19.0.2") // Check for the latest version
-
+// this is used int he mobile otp sign up
     implementation("io.github.chaosleung:pinview:1.4.4")
+// lottie animations
+    implementation("com.airbnb.android:lottie:6.6.0")
 }
