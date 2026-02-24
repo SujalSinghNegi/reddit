@@ -65,4 +65,6 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
 // You likely already have firebase-auth
     implementation("io.coil-kt:coil:2.4.0")
+        // for no reCaptcha , it will check in background
+    implementation("com.google.firebase:firebase-appcheck-playintegrity:19.0.2") // Check for the latest version
 }

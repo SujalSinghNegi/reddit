@@ -10,7 +10,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.reddit.databinding.ActivityPhoneSignUpBinding
 import com.example.reddit.mainpage.MainPage
+import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseException
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthCredential
@@ -41,7 +44,6 @@ class PhoneSignUpActivity : AppCompatActivity() {
         }
 
         auth = FirebaseAuth.getInstance()
-
         setupCallbacks()
 
         // Handle "Send OTP"
