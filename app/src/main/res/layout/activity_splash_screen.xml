@@ -7,25 +7,33 @@
     android:layout_height="match_parent"
     tools:context=".splash.SplashScreen">
 
+
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="178dp"
-        android:layout_height="125dp"
-        android:layout_marginStart="104dp"
-        android:layout_marginTop="288dp"
-        android:text="LOG IN or OUT"
-        android:textSize="24sp"
+        android:id="@+id/titleText2"
+        android:layout_width="218dp"
+        android:layout_height="68dp"
+        android:layout_marginTop="72dp"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="sans-serif-black"
+        android:text="    Loading ..."
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="@+id/backBtn"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/backBtn"
+        app:layout_constraintTop_toBottomOf="@+id/backBtn" />
+
+    <ImageView
+
+        android:id="@+id/backBtn"
+        android:layout_width="199dp"
+        android:layout_height="191dp"
+        android:layout_marginTop="216dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="12dp"
+        android:src="@drawable/reddit_app_icon"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="178dp"
-        android:layout_height="125dp"
-        android:layout_marginStart="116dp"
-        android:layout_marginTop="64dp"
-        android:text="Splash Screen"
-        android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
