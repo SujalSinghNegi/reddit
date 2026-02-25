@@ -63,12 +63,14 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore:24.10.0")
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
-// You likely already have firebase-auth
+    // You likely already have firebase-auth
     implementation("io.coil-kt:coil:2.4.0")
-        // for no reCaptcha , it will check in background
+    // for no reCaptcha , it will check in background
     implementation("com.google.firebase:firebase-appcheck-playintegrity:19.0.2") // Check for the latest version
-// this is used int he mobile otp sign up
+    // this is used int he mobile otp sign up
     implementation("io.github.chaosleung:pinview:1.4.4")
-// lottie animations
+    // lottie animations
     implementation("com.airbnb.android:lottie:6.6.0")
+    // api for splash screen load in background , with themes and manifest support
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }
