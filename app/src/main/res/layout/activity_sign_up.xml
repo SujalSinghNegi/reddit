@@ -5,19 +5,19 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_login_gradient"
+    android:background="@color/rd_black"
     tools:context=".login.SignUpActivity">
 
     <ImageView
         android:id="@+id/logoImageView"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="80dp"
+        android:layout_width="66dp"
+        android:layout_height="74dp"
+        android:layout_marginTop="152dp"
         android:src="@drawable/reddit_app_icon"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-         />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/titleTextView"
@@ -25,13 +25,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:fontFamily="sans-serif-black"
-        android:text="Sign up"
-        android:textColor="#623D92"
-        android:textSize="38sp"
         android:shadowColor="#40000000"
         android:shadowDx="2"
         android:shadowDy="2"
         android:shadowRadius="4"
+        android:text="Sign up for Reddit"
+        android:textColor="@color/white"
+        android:textSize="38sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/logoImageView" />
@@ -43,9 +43,12 @@
         android:layout_height="56dp"
         android:layout_marginTop="56dp"
         android:text="Continue with Google"
-        android:textColor="?attr/colorOnSurface"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:strokeColor="@android:color/white"
+        app:strokeWidth="1dp"
         app:icon="@drawable/ic_google_logo"
-        app:iconGravity="textStart"
+        app:iconGravity="start"
         app:iconTint="@null"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -59,10 +62,13 @@
         android:layout_height="56dp"
         android:layout_marginTop="16dp"
         android:text="Continue with Phone"
-        android:textColor="?attr/colorOnSurface"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:strokeColor="@android:color/white"
+        app:strokeWidth="1dp"
         app:icon="@android:drawable/ic_menu_call"
-        app:iconGravity="textStart"
-        app:iconTint="?attr/colorOnSurface"
+        app:iconGravity="start"
+        app:iconTint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/googleBtn"
@@ -75,10 +81,13 @@
         android:layout_height="56dp"
         android:layout_marginTop="16dp"
         android:text="Continue with Email"
-        android:textColor="?attr/colorOnSurface"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:strokeColor="@android:color/white"
+        app:strokeWidth="1dp"
         app:icon="@android:drawable/ic_dialog_email"
-        app:iconGravity="textStart"
-        app:iconTint="?attr/colorOnSurface"
+        app:iconGravity="start"
+        app:iconTint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/phoneBtn"
@@ -99,7 +108,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Already a member?"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textColor="@color/white"
             android:textSize="14sp" />
 
         <com.google.android.material.button.MaterialButton
@@ -108,9 +117,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Log in"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="@color/white"
             android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            app:backgroundTint="#2A3237" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
