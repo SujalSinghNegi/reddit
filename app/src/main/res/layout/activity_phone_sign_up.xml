@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
+    android:background="@color/rd_black"
     tools:context=".login.PhoneSignUpActivity">
 
     <ImageView
@@ -14,11 +14,9 @@
         android:layout_height="72dp"
         android:layout_marginTop="56dp"
         android:background="@drawable/ic_otp"
-
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-         />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/titleText"
@@ -27,7 +25,7 @@
         android:layout_marginTop="24dp"
         android:fontFamily="sans-serif-black"
         android:text="Enter your phone"
-        android:textColor="?attr/colorOnSurface"
+        android:textColor="@color/white"
         android:textSize="28sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="We will send you a 6-digit confirmation code."
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textColor="#BDBDBD"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,12 +50,17 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:hint="Phone Number"
+        android:textColorHint="#BDBDBD"
+        app:hintTextColor="@color/white"
         app:boxCornerRadiusBottomEnd="16dp"
         app:boxCornerRadiusBottomStart="16dp"
         app:boxCornerRadiusTopEnd="16dp"
         app:boxCornerRadiusTopStart="16dp"
         app:prefixText="+91 "
-        app:prefixTextColor="?attr/colorPrimary"
+        app:prefixTextColor="@color/white"
+        app:boxStrokeColor="@color/text_input_stroke"
+        app:boxStrokeWidth="1dp"
+        app:boxStrokeWidthFocused="2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/subText"
@@ -68,7 +71,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="phone"
-            android:maxLength="10" />
+            android:maxLength="10"
+            android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -78,7 +82,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Send OTP"
-        android:textColor="?attr/colorPrimary"
+        android:textColor="@color/white"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/phoneInputLayout"
         app:layout_constraintTop_toBottomOf="@+id/phoneInputLayout" />
@@ -91,11 +95,11 @@
         android:layout_marginTop="40dp"
         android:cursorVisible="true"
         android:inputType="numberPassword"
-        android:itemBackground="?attr/colorSurfaceVariant"
-        android:textColor="?attr/colorOnSurface"
+        android:itemBackground="@null"
+        android:textColor="@color/white"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:cursorColor="?attr/colorPrimary"
+        app:cursorColor="@color/white"
         app:hideLineWhenFilled="true"
         app:itemCount="6"
         app:itemHeight="56dp"
@@ -105,7 +109,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sendOtp"
-        app:lineColor="?attr/colorPrimary"
+        app:lineColor="@color/text_input_stroke"
         app:lineWidth="2dp"
         app:viewType="rectangle" />
 
@@ -115,9 +119,11 @@
         android:layout_height="60dp"
         android:layout_marginBottom="48dp"
         android:text="Verify &amp; Continue"
+        android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:cornerRadius="16dp"
+        app:backgroundTint="@color/white"
+        app:cornerRadius="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

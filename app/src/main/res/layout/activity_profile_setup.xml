@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_login_gradient"
+    android:background="@color/rd_black"
     tools:context=".login.ProfileSetupActivity">
 
     <com.airbnb.lottie.LottieAnimationView
@@ -27,12 +27,8 @@
         android:layout_marginTop="24dp"
         android:fontFamily="sans-serif-black"
         android:text="Choose your username"
-        android:textColor="?attr/colorOnSurface"
+        android:textColor="@color/white"
         android:textSize="28sp"
-        android:shadowColor="#40000000"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profileLottieAnim" />
@@ -43,7 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="This is how the community will see you."
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textColor="#BDBDBD"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -56,8 +52,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:hint="Username"
+        android:textColorHint="#BDBDBD"
+        app:hintTextColor="@color/white"
+        app:boxStrokeColor="@color/text_input_stroke"
+        app:boxStrokeWidth="1dp"
+        app:boxStrokeWidthFocused="2dp"
         app:prefixText="u/"
-        app:prefixTextColor="?attr/colorPrimary"
+        app:prefixTextColor="@color/white"
         app:helperText="*You can't change this later"
         app:helperTextTextColor="?attr/colorError"
         app:layout_constraintEnd_toEndOf="parent"
@@ -70,7 +71,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName|textNoSuggestions"
-            android:maxLength="20" />
+            android:maxLength="20"
+            android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -79,9 +81,10 @@
         android:layout_height="60dp"
         android:layout_marginBottom="48dp"
         android:text="Complete Setup"
+        android:textColor="@color/white"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:backgroundTint="#69C5F8"
+        app:backgroundTint="#F86973"
         app:cornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

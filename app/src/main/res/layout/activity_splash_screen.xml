@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/rd_black"
     tools:context=".splash.SplashScreen">
 
 
@@ -16,7 +17,7 @@
         android:layout_marginEnd="32dp"
         android:fontFamily="sans-serif-black"
         android:text="    Loading ..."
-        android:textColor="?attr/colorOnSurface"
+        android:textColor="@color/white"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="@+id/backBtn"
         app:layout_constraintHorizontal_bias="0.0"
