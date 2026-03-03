@@ -73,4 +73,7 @@ dependencies {
     implementation("com.airbnb.android:lottie:6.6.0")
     // api for splash screen load in background , with themes and manifest support
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    implementation("id.zelory:compressor:3.0.1")
+
 }
