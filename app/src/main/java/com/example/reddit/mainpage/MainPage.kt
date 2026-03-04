@@ -1,38 +1,31 @@
 package com.example.reddit.mainpage
-
 import android.content.Intent
-
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-
 import android.widget.Toast
-
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.startActivity
-
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.reddit.OnPostClickListener
 import com.example.reddit.PostAdapter
 import com.example.reddit.R
 import com.example.reddit.databinding.ActivityMainPageBinding
-
 import com.example.reddit.login.LoginPage
 import com.example.reddit.models.PostModel
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 
-import com.google.firebase.auth.auth
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
-class MainPage : AppCompatActivity(), com.example.reddit.OnPostClickListener {
+class MainPage : AppCompatActivity(), OnPostClickListener {
 
     private val binding: ActivityMainPageBinding by lazy {
         ActivityMainPageBinding.inflate(layoutInflater)
@@ -57,7 +50,7 @@ class MainPage : AppCompatActivity(), com.example.reddit.OnPostClickListener {
         // 2. Setup RecyclerView
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // 2. Pass 'this' as the listener
+        // 3. Pass 'this' as the listener
         adapter = PostAdapter(this, postList, this)
         binding.recyclerView.adapter = adapter
 
@@ -68,20 +61,173 @@ class MainPage : AppCompatActivity(), com.example.reddit.OnPostClickListener {
             startActivity(Intent(this, AddPostActivity::class.java))
         }
     }
-    override fun onUpvoteClick(post: PostModel) {
-        Toast.makeText(this, "Upvoted", Toast.LENGTH_SHORT).show()
-        // TODO: Add Firestore Logic for Upvote
+
+    // --- VOTING LOGIC ---
+    override fun onUpvoteClick(post: PostModel, position: Int) {
+        val db = FirebaseFirestore.getInstance()
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        val postRef = db.collection("posts").document(post.postId)
+        val voteRef = postRef.collection("votes").document(currentUserId)
+
+        // 1. OPTIMISTIC UI UPDATE (Feels instant to the user)
+        val previousVote = post.currentUserVote
+        val previousVoteCount = post.voteCount
+
+        when (previousVote) {
+            1 -> { // Undo upvote
+                post.currentUserVote = 0
+                post.voteCount -= 1
+            }
+            -1 -> { // Switch downvote to upvote
+                post.currentUserVote = 1
+                post.voteCount += 2
+            }
+            else -> { // Fresh upvote
+                post.currentUserVote = 1
+                post.voteCount += 1
+            }
+        }
+        adapter.notifyItemChanged(position)
+
+        // 2. FIRESTORE TRANSACTION (Background sync)
+        db.runTransaction { transaction ->
+            val voteSnapshot = transaction.get(voteRef)
+            val currentVote = if (voteSnapshot.exists()) voteSnapshot.getLong("voteType") ?: 0L else 0L
+
+            when (currentVote) {
+                1L -> { // Undo
+                    transaction.delete(voteRef)
+                    transaction.update(postRef, "voteCount", FieldValue.increment(-1))
+                }
+                -1L -> { // Switch
+                    transaction.set(voteRef, mapOf("voteType" to 1L))
+                    transaction.update(postRef, "voteCount", FieldValue.increment(2))
+                }
+                else -> { // Fresh
+                    transaction.set(voteRef, mapOf("voteType" to 1L))
+                    transaction.update(postRef, "voteCount", FieldValue.increment(1))
+                }
+            }
+            null
+        }.addOnFailureListener { e ->
+            // Revert UI if the server update fails
+            post.currentUserVote = previousVote
+            post.voteCount = previousVoteCount
+            adapter.notifyItemChanged(position)
+            Toast.makeText(this, "Vote failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
-    override fun onDownvoteClick(post: PostModel) {
-        Toast.makeText(this, "Downvoted", Toast.LENGTH_SHORT).show()
-        // TODO: Add Firestore Logic for Downvote
+    override fun onDownvoteClick(post: PostModel, position: Int) {
+        val db = FirebaseFirestore.getInstance()
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        val postRef = db.collection("posts").document(post.postId)
+        val voteRef = postRef.collection("votes").document(currentUserId)
+
+        // 1. OPTIMISTIC UI UPDATE
+        val previousVote = post.currentUserVote
+        val previousVoteCount = post.voteCount
+
+        when (previousVote) {
+            -1 -> { // Undo downvote
+                post.currentUserVote = 0
+                post.voteCount += 1
+            }
+            1 -> { // Switch upvote to downvote
+                post.currentUserVote = -1
+                post.voteCount -= 2
+            }
+            else -> { // Fresh downvote
+                post.currentUserVote = -1
+                post.voteCount -= 1
+            }
+        }
+        adapter.notifyItemChanged(position)
+
+        // 2. FIRESTORE TRANSACTION
+        db.runTransaction { transaction ->
+            val voteSnapshot = transaction.get(voteRef)
+            val currentVote = if (voteSnapshot.exists()) voteSnapshot.getLong("voteType") ?: 0L else 0L
+
+            when (currentVote) {
+                -1L -> { // Undo
+                    transaction.delete(voteRef)
+                    transaction.update(postRef, "voteCount", FieldValue.increment(1))
+                }
+                1L -> { // Switch
+                    transaction.set(voteRef, mapOf("voteType" to -1L))
+                    transaction.update(postRef, "voteCount", FieldValue.increment(-2))
+                }
+                else -> { // Fresh
+                    transaction.set(voteRef, mapOf("voteType" to -1L))
+                    transaction.update(postRef, "voteCount", FieldValue.increment(-1))
+                }
+            }
+            null
+        }.addOnFailureListener { e ->
+            // Revert UI if the server update fails
+            post.currentUserVote = previousVote
+            post.voteCount = previousVoteCount
+            adapter.notifyItemChanged(position)
+            Toast.makeText(this, "Vote failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onCommentClick(post: PostModel) {
         Toast.makeText(this, "Comment clicked", Toast.LENGTH_SHORT).show()
         // TODO: Open Comment Activity
     }
+
+    // --- DATA FETCHING ---
+    private fun fetchPosts() {
+        val db = FirebaseFirestore.getInstance()
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        db.collection("posts")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { value, error ->
+                if (error != null) {
+                    Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+
+                if (value != null) {
+                    // Use Coroutines to fetch the subcollection data asynchronously
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val tempPostList = ArrayList<PostModel>()
+
+                        for (document in value.documents) {
+                            val post = document.toObject(PostModel::class.java)
+                            if (post != null) {
+                                // Fetch the specific user's vote for this post
+                                try {
+                                    val voteDoc = db.collection("posts").document(post.postId)
+                                        .collection("votes").document(currentUserId)
+                                        .get().await() // Suspends until data is fetched
+
+                                    if (voteDoc.exists()) {
+                                        post.currentUserVote = (voteDoc.getLong("voteType") ?: 0L).toInt()
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                                tempPostList.add(post)
+                            }
+                        }
+
+                        // Switch back to the Main thread to update the UI
+                        withContext(Dispatchers.Main) {
+                            postList.clear()
+                            postList.addAll(tempPostList)
+                            adapter.notifyDataSetChanged()
+                        }
+                    }
+                }
+            }
+    }
+
     // --- Menu Logic ---
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -96,12 +242,8 @@ class MainPage : AppCompatActivity(), com.example.reddit.OnPostClickListener {
         return super.onOptionsItemSelected(item)
     }
 
-    // --- Improved Sign Out Function ---
     private fun signOutAndStartOver() {
-        // 1. Sign out from Firebase
         auth.signOut()
-
-        // 2. Clear Credential Manager State (Google Session)
         val credentialManager = CredentialManager.create(this)
 
         lifecycleScope.launch {
@@ -110,8 +252,6 @@ class MainPage : AppCompatActivity(), com.example.reddit.OnPostClickListener {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-
-            // 3. Navigate after clearing state
             Toast.makeText(this@MainPage, "Logged Out Successfully", Toast.LENGTH_SHORT).show()
             goToLogin()
         }
@@ -119,32 +259,8 @@ class MainPage : AppCompatActivity(), com.example.reddit.OnPostClickListener {
 
     private fun goToLogin() {
         val intent = Intent(this, LoginPage::class.java)
-        // Clear Back Stack so user cannot press "Back" to return
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
-    }
-
-    private fun fetchPosts() {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("posts")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { value, error ->
-                if (error != null) {
-                    Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-                    return@addSnapshotListener
-                }
-
-                if (value != null) {
-                    postList.clear()
-                    for (document in value.documents) {
-                        val post = document.toObject(PostModel::class.java)
-                        if (post != null) {
-                            postList.add(post)
-                        }
-                    }
-                    adapter.notifyDataSetChanged()
-                }
-            }
     }
 }
