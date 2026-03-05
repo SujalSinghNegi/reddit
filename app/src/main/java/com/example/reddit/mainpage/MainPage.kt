@@ -9,6 +9,7 @@ import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.reddit.LoadingDialog
 import com.example.reddit.OnPostClickListener
 import com.example.reddit.PostAdapter
 import com.example.reddit.R
@@ -21,6 +22,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -34,7 +36,7 @@ class MainPage : AppCompatActivity(), OnPostClickListener {
     private lateinit var adapter: PostAdapter
     private val postList = ArrayList<PostModel>()
     private lateinit var auth: FirebaseAuth
-
+    private lateinit var loadingDialog: LoadingDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -46,6 +48,7 @@ class MainPage : AppCompatActivity(), OnPostClickListener {
             goToLogin()
             return
         }
+        loadingDialog = LoadingDialog(this)
 
         // 2. Setup RecyclerView
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -54,6 +57,9 @@ class MainPage : AppCompatActivity(), OnPostClickListener {
         adapter = PostAdapter(this, postList, this)
         binding.recyclerView.adapter = adapter
 
+        // This need to be changed later , when i will change the recycler view completely efficient to load only post that can be visible.
+        // used to show the loading , and ending is placed inside the lifecycle scope of fetch post.
+        loadingDialog.startLoading()
         fetchPosts()
 
         // 4. FAB Button
@@ -196,6 +202,7 @@ class MainPage : AppCompatActivity(), OnPostClickListener {
                 if (value != null) {
                     // Use Coroutines to fetch the subcollection data asynchronously
                     lifecycleScope.launch(Dispatchers.IO) {
+                       // loadingDialog.startLoading()
                         val tempPostList = ArrayList<PostModel>()
 
                         for (document in value.documents) {
@@ -223,9 +230,11 @@ class MainPage : AppCompatActivity(), OnPostClickListener {
                             postList.addAll(tempPostList)
                             adapter.notifyDataSetChanged()
                         }
+                        loadingDialog.dismissDialog()
                     }
                 }
             }
+
     }
 
     // --- Menu Logic ---
