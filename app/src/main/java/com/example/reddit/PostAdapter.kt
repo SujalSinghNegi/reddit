@@ -11,11 +11,13 @@ import com.example.reddit.models.PostModel
 
 
 
+import android.os.SystemClock
 
-// 1. Define an Interface for clicks
+import android.widget.Toast
+
 interface OnPostClickListener {
-    fun onUpvoteClick(post: PostModel, position: Int)   // Added position for localized UI updates
-    fun onDownvoteClick(post: PostModel, position: Int) // Added position for localized UI updates
+    fun onUpvoteClick(post: PostModel, position: Int)
+    fun onDownvoteClick(post: PostModel, position: Int)
     fun onCommentClick(post: PostModel)
 }
 
@@ -24,6 +26,13 @@ class PostAdapter(
     private val postList: List<PostModel>,
     private val listener: OnPostClickListener
 ) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
+
+    // --- NEW: Tracking Variables ---
+    // Maps the postId to the exact time (in milliseconds) when it will unlock
+    private val lockedPosts = mutableMapOf<String, Long>()
+
+    // Tracks the last time the "Locked" toast was shown to prevent spam
+    private var lastToastTime = 0L
 
     class PostViewHolder(val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -41,41 +50,66 @@ class PostAdapter(
 
         Glide.with(context).load(post.imageUrl).into(holder.binding.imgPost)
 
-        // --- NEW VISUAL LOGIC FOR VOTING ---
-        val upvoteColor = Color.parseColor("#FF4500")   // Reddit Orange
-        val downvoteColor = Color.parseColor("#7193FF") // Reddit Blue
-        val defaultColor = Color.parseColor("#808080")  // Default Gray
+        // Visual UI Logic
+        val upvoteColor = Color.parseColor("#FF4500")
+        val downvoteColor = Color.parseColor("#7193FF")
+        val defaultColor = Color.parseColor("#808080")
 
         when (post.currentUserVote) {
             1 -> {
-                // User upvoted: Color the up arrow orange, default the down arrow
                 holder.binding.imgUpvote.setColorFilter(upvoteColor)
                 holder.binding.imgDownvote.setColorFilter(defaultColor)
             }
             -1 -> {
-                // User downvoted: Color the down arrow blue, default the up arrow
                 holder.binding.imgUpvote.setColorFilter(defaultColor)
                 holder.binding.imgDownvote.setColorFilter(downvoteColor)
             }
             else -> {
-                // No vote: Default both arrows to gray
                 holder.binding.imgUpvote.setColorFilter(defaultColor)
                 holder.binding.imgDownvote.setColorFilter(defaultColor)
             }
         }
 
-        // 3. Set Click Listeners (Passing the position so we can notifyItemChanged later)
+        // --- NEW: Click Listeners with Lockout Logic ---
         holder.binding.imgUpvote.setOnClickListener {
-            listener.onUpvoteClick(post, position)
+            handleVoteAction(post, position) {
+                listener.onUpvoteClick(post, position)
+            }
         }
 
         holder.binding.imgDownvote.setOnClickListener {
-            listener.onDownvoteClick(post, position)
+            handleVoteAction(post, position) {
+                listener.onDownvoteClick(post, position)
+            }
         }
 
         holder.binding.imgComment.setOnClickListener {
             listener.onCommentClick(post)
         }
+    }
+
+    // --- NEW: The Central Logic Function ---
+    private fun handleVoteAction(post: PostModel, position: Int, action: () -> Unit) {
+        val currentTime = SystemClock.elapsedRealtime()
+        val unlockTime = lockedPosts[post.postId] ?: 0L
+
+        // 1. Check if the post is currently locked
+        if (currentTime < unlockTime) {
+
+            // 2. It is locked. Check if 1 second has passed since the last Toast
+            if (currentTime - lastToastTime > 1000L) {
+                val remainingSeconds = ((unlockTime - currentTime) / 1000).toInt()
+                Toast.makeText(context, "Action locked. Try again in $remainingSeconds seconds", Toast.LENGTH_SHORT).show()
+                lastToastTime = currentTime // Update the toast timer
+            }
+            return // Exit early, do not trigger the vote
+        }
+
+        // 3. Not locked! Lock it for exactly 10 seconds (10,000 ms) from now
+        lockedPosts[post.postId] = currentTime + 10000L
+
+        // 4. Execute the actual vote function in MainPage
+        action()
     }
 
     override fun getItemCount() = postList.size
