@@ -26,7 +26,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-
+import androidx.activity.OnBackPressedCallback
 class MainPage : AppCompatActivity(), OnPostClickListener {
 
     private val binding: ActivityMainPageBinding by lazy {
@@ -62,6 +62,13 @@ class MainPage : AppCompatActivity(), OnPostClickListener {
         loadingDialog.startLoading()
         fetchPosts()
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // moveTaskToBack(true) simulates pressing the home button.
+                // It pauses the activity and hides the app without destroying it.
+                moveTaskToBack(true)
+            }
+        })
         // 4. FAB Button
         binding.fabAddPost.setOnClickListener {
             startActivity(Intent(this, AddPostActivity::class.java))
