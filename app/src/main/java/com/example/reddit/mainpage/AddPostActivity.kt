@@ -19,6 +19,7 @@ import java.util.UUID
 
 import android.graphics.Bitmap
 import androidx.lifecycle.lifecycleScope
+import com.example.reddit.LoadingDialog
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.format
 import id.zelory.compressor.constraint.quality
@@ -36,7 +37,7 @@ class AddPostActivity : AppCompatActivity() {
     private val binding: ActivityAddPostBinding by lazy {
         ActivityAddPostBinding.inflate(layoutInflater)
     }
-
+    private lateinit var loadingDialog: LoadingDialog
     private var imageUri: Uri? = null
 
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -49,7 +50,7 @@ class AddPostActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
+        loadingDialog = LoadingDialog(this)
         binding.imgPreview.setOnClickListener {
             pickImage.launch("image/*")
         }
@@ -57,18 +58,21 @@ class AddPostActivity : AppCompatActivity() {
         binding.btnPost.setOnClickListener {
             val caption = binding.etCaption.text.toString()
 
-            if (imageUri != null) {
-                // Call our new coroutine-powered upload function
+            if (imageUri != null && caption != "") {
+                loadingDialog.startLoading()
                 compressAndUploadImage(caption)
-            } else {
+            } else if(caption == ""){
+                Toast.makeText(this, "Please enter a caption", Toast.LENGTH_SHORT).show()
+            }else {
                 Toast.makeText(this, "Please select an image first", Toast.LENGTH_SHORT).show()
             }
+
         }
+
     }
 
     private fun compressAndUploadImage(caption: String) {
         // 1. Show Loading UI immediately
-        binding.progressBar.visibility = View.VISIBLE
         binding.btnPost.isEnabled = false
 
         // 2. Launch a Coroutine tied to the Activity's lifecycle
@@ -101,6 +105,7 @@ class AddPostActivity : AppCompatActivity() {
                 e.printStackTrace()
                 showErrorAndResetUI("Compression failed: ${e.message}")
             }
+
         }
     }
 
@@ -126,7 +131,10 @@ class AddPostActivity : AppCompatActivity() {
         val auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
-        if (currentUser == null) return
+        if (currentUser == null) {
+            showErrorAndResetUI("Session Expired. Please Login again.")
+            return
+        }
 
         db.collection("users").document(currentUser.uid).get()
             .addOnSuccessListener { document ->
@@ -146,7 +154,7 @@ class AddPostActivity : AppCompatActivity() {
 
                 postRef.set(post)
                     .addOnSuccessListener {
-                        binding.progressBar.visibility = View.GONE
+                        loadingDialog.dismissDialog()
                         Toast.makeText(this, "Post Uploaded!", Toast.LENGTH_SHORT).show()
                         finish()
                     }
@@ -190,7 +198,7 @@ class AddPostActivity : AppCompatActivity() {
      * Helper to reset the UI if anything fails
      */
     private fun showErrorAndResetUI(errorMessage: String) {
-        binding.progressBar.visibility = View.GONE
+        loadingDialog.dismissDialog()
         binding.btnPost.isEnabled = true
         Toast.makeText(this@AddPostActivity, errorMessage, Toast.LENGTH_SHORT).show()
     }
