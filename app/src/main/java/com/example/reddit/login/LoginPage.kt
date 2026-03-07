@@ -14,6 +14,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
+import com.example.reddit.LoadingDialog
 import com.example.reddit.R
 import com.example.reddit.databinding.ActivityLoginPageBinding
 import com.example.reddit.mainpage.MainPage
@@ -33,7 +34,7 @@ class LoginPage : AppCompatActivity() {
     }
     private lateinit var auth: FirebaseAuth
     private lateinit var credentialManager: CredentialManager
-
+    private lateinit var loadingDialog: LoadingDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -43,7 +44,7 @@ class LoginPage : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+        loadingDialog = LoadingDialog(this)
 //        binding.loginBtn.setOnClickListener {
 //            val intent= Intent(this@LoginPage, MainPage::class.java)
 //            startActivity(intent)
@@ -87,6 +88,7 @@ class LoginPage : AppCompatActivity() {
     }
 
 private fun signInWithGoogle(){
+
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false) // Set true to only show accounts already signed in to the app
             .setServerClientId(getString(R.string.default_web_client_id))
@@ -100,14 +102,17 @@ private fun signInWithGoogle(){
 
         // 4. Launch the request using Coroutines
         lifecycleScope.launch {
+
             try {
                 val result = credentialManager.getCredential(
                     request = request,
                     context = this@LoginPage
                 )
+                loadingDialog.startLoading()
                 handleSignIn(result)
             } catch (e: GetCredentialException) {
                 Log.e("CredMan", "GetCredential failed", e)
+                loadingDialog.dismissDialog()
                 Toast.makeText(baseContext, "Sign In Cancelled/Failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
@@ -126,9 +131,11 @@ private fun signInWithGoogle(){
                 firebaseAuthWithGoogle(idToken)
 
             } catch (e: GoogleIdTokenParsingException) {
+                loadingDialog.dismissDialog()
                 Log.e("CredMan", "Received an invalid google id token response", e)
             }
         } else {
+            loadingDialog.dismissDialog()
             Log.e("CredMan", "Unexpected type of credential")
         }
     }
@@ -144,6 +151,7 @@ private fun signInWithGoogle(){
                         checkUserDatabase(user)
                     }
                 } else {
+                    loadingDialog.dismissDialog()
                     Toast.makeText(baseContext, "Authentication Failed.", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -180,6 +188,7 @@ private fun signInWithGoogle(){
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     // Scenario 1: User is already in DB -> Go to Home
+
                     Log.d("Auth", "User found in Firestore, going to Main Page")
                     goToMainPage()
                 } else {
@@ -196,6 +205,7 @@ private fun signInWithGoogle(){
                 }
             }
             .addOnFailureListener { e ->
+                loadingDialog.dismissDialog()
                 Toast.makeText(this, "Error checking database: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
@@ -222,17 +232,20 @@ private fun signInWithGoogle(){
                 goToMainPage()
             }
             .addOnFailureListener {
+                loadingDialog.dismissDialog()
                 Toast.makeText(this, "Failed to save profile: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
     // Navigation Helpers to keep code clean
     private fun goToMainPage() {
+        loadingDialog.dismissDialog()
         startActivity(Intent(this, MainPage::class.java))
         finish()
     }
 
     private fun goToProfileSetup() {
+        loadingDialog.dismissDialog()
         startActivity(Intent(this, ProfileSetupActivity::class.java))
         finish()
     }
