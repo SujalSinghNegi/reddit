@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 import android.content.Intent
 import android.widget.Toast
+import com.example.reddit.LoadingDialog
 import com.example.reddit.databinding.ActivityProfileSetupBinding
 import com.example.reddit.mainpage.MainPage
 import com.example.reddit.models.UserModel
@@ -16,11 +17,11 @@ class ProfileSetupActivity : AppCompatActivity() {
     private val binding: ActivityProfileSetupBinding by lazy {
         ActivityProfileSetupBinding.inflate(layoutInflater)
     }
-
+    private lateinit var loadingDialog: LoadingDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
+        loadingDialog = LoadingDialog(this)
         val auth = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()
 
@@ -31,7 +32,7 @@ class ProfileSetupActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please enter your name", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
+            loadingDialog.startLoading()
             // Create the User Data object
             val user = UserModel(
                 uid = auth.currentUser!!.uid,
@@ -48,9 +49,11 @@ class ProfileSetupActivity : AppCompatActivity() {
                     // ... (Code to update FirebaseUserProfileChangeRequest if needed)
                     Toast.makeText(this, "Profile Saved!", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, MainPage::class.java))
+                    loadingDialog.dismissDialog()
                     finish()
                 }
                 .addOnFailureListener {
+                    loadingDialog.dismissDialog()
                     Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
                 }
         }

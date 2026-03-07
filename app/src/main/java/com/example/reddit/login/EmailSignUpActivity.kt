@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.reddit.LoadingDialog
 import com.example.reddit.databinding.ActivityEmailSignUpBinding
 import com.example.reddit.mainpage.MainPage
 import com.google.firebase.auth.FirebaseAuth
@@ -22,7 +23,7 @@ class EmailSignUpActivity : AppCompatActivity() {
         ActivityEmailSignUpBinding.inflate(layoutInflater)
     }
     private lateinit var auth: FirebaseAuth
-
+    private lateinit var loadingDialog: LoadingDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState) // Initialize super first
 
@@ -35,6 +36,8 @@ class EmailSignUpActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        loadingDialog = LoadingDialog(this)
 
 //        binding.signUpBtn.setOnClickListener {
 //            val email = binding.emailId.text.toString().trim()
@@ -70,7 +73,7 @@ class EmailSignUpActivity : AppCompatActivity() {
 
                         // Disable button while creating account to prevent duplicate submissions
                         binding.signUpBtn.isEnabled = false
-
+                        loadingDialog.startLoading()
                         // Create the user
                         auth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener { task ->
@@ -113,6 +116,7 @@ class EmailSignUpActivity : AppCompatActivity() {
                                             Toast.makeText(this, "Sign Up Error: ${exception?.message}", Toast.LENGTH_LONG).show()
                                         }
                                     }
+                                    loadingDialog.dismissDialog()
                                 }
                             }
                     } else {
@@ -143,6 +147,7 @@ class EmailSignUpActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener { e ->
+                loadingDialog.dismissDialog()
                 Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
@@ -151,6 +156,7 @@ class EmailSignUpActivity : AppCompatActivity() {
         val intent = Intent(this, MainPage::class.java)
         // Clear back stack so they can't go back to signup
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        loadingDialog.dismissDialog()
         startActivity(intent)
         finish()
     }
@@ -158,6 +164,7 @@ class EmailSignUpActivity : AppCompatActivity() {
     private fun goToProfileSetup() {
         val intent = Intent(this, ProfileSetupActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        loadingDialog.dismissDialog()
         startActivity(intent)
         finish()
     }
