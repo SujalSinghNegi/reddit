@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.reddit.LoadingDialog
 import com.example.reddit.MainActivity
 import com.example.reddit.R
 import com.example.reddit.databinding.ActivityEmailLoginPageBinding
@@ -22,6 +23,7 @@ class EmailLoginPage : AppCompatActivity() {
         ActivityEmailLoginPageBinding.inflate(layoutInflater)
     }
     private lateinit var auth: FirebaseAuth
+    private lateinit var loadingDialog: LoadingDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         auth = FirebaseAuth.getInstance()
 
@@ -33,6 +35,7 @@ class EmailLoginPage : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        loadingDialog = LoadingDialog(this)
 
 //        binding.loginBtn.setOnClickListener {
 //            val email = binding.emailId.text.toString()
@@ -51,6 +54,7 @@ class EmailLoginPage : AppCompatActivity() {
 //            }
 //        }
         binding.loginBtn.setOnClickListener {
+            loadingDialog.startLoading()
             // Added .trim() to prevent invisible trailing spaces from breaking the login
             val email = binding.emailId.text.toString().trim()
             val password = binding.password.text.toString().trim()
@@ -67,6 +71,7 @@ class EmailLoginPage : AppCompatActivity() {
 
                         if (task.isSuccessful) {
                             Toast.makeText(this, "Welcome back!", Toast.LENGTH_SHORT).show()
+                            loadingDialog.dismissDialog()
                             startActivity(Intent(this, MainPage::class.java))
                             finish()
                         } else {
@@ -89,11 +94,14 @@ class EmailLoginPage : AppCompatActivity() {
                                     Toast.makeText(this, "Login Error: ${exception?.message}", Toast.LENGTH_LONG).show()
                                 }
                             }
+                            loadingDialog.dismissDialog()
                         }
                     }
             } else {
+                loadingDialog.dismissDialog()
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             }
+
         }
 
 
