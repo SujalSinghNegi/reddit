@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.reddit.LoadingDialog
 import com.example.reddit.databinding.ActivityPhoneSignUpBinding
 import com.example.reddit.mainpage.MainPage
 import com.google.firebase.FirebaseApp
@@ -32,7 +33,7 @@ class PhoneSignUpActivity : AppCompatActivity() {
     private var storedVerificationId: String = ""
     private lateinit var resendToken: PhoneAuthProvider.ForceResendingToken
     private lateinit var callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
-
+    private lateinit var loadingDialog: LoadingDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -42,7 +43,7 @@ class PhoneSignUpActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+        loadingDialog = LoadingDialog(this)
         auth = FirebaseAuth.getInstance()
         setupCallbacks()
 
@@ -54,7 +55,6 @@ class PhoneSignUpActivity : AppCompatActivity() {
                 // Assuming +91 for India. Change if needed.
                 val fullPhoneNumber = "+91$rawPhone"
                 startPhoneNumberVerification(fullPhoneNumber)
-
                 binding.sendOtp.isEnabled = false
                 binding.sendOtp.text = "Sending..."
             } else {
@@ -71,6 +71,7 @@ class PhoneSignUpActivity : AppCompatActivity() {
             }
 
             if (storedVerificationId.isNotEmpty()) {
+                loadingDialog.startLoading()
                 val credential = PhoneAuthProvider.getCredential(storedVerificationId, code)
                 signInWithPhoneAuthCredential(credential)
             } else {
@@ -129,6 +130,7 @@ class PhoneSignUpActivity : AppCompatActivity() {
                         checkUserDatabase(user)
                     }
                 } else {
+                    loadingDialog.dismissDialog()
                     Toast.makeText(this, "Verification failed. Invalid OTP.", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -151,11 +153,13 @@ class PhoneSignUpActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener { e ->
+                loadingDialog.dismissDialog()
                 Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun goToMainPage() {
+        loadingDialog.dismissDialog()
         val intent = Intent(this, MainPage::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
@@ -163,6 +167,7 @@ class PhoneSignUpActivity : AppCompatActivity() {
     }
 
     private fun goToProfileSetup() {
+        loadingDialog.dismissDialog()
         val intent = Intent(this, ProfileSetupActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
