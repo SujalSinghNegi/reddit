@@ -1,6 +1,6 @@
 # Reddit Clone - Android Social Platform
 
-![Banner Image][WhatsApp Image 2026-03-08 at 1 11 33 PM](https://github.com/user-attachments/assets/f34c5fe9-648e-47a9-8f5f-4dec5e4b3685) 
+<img width="128" height="128" alt="reddit_app_icon" src="https://github.com/user-attachments/assets/2ad65214-3a09-47f3-88fc-601619bcf96d" />
 
 A fully functional, high-performance Reddit clone built natively for Android. This project demonstrates modern Android development practices, real-time database synchronization, and complex state management. 
 
@@ -24,10 +24,10 @@ A fully functional, high-performance Reddit clone built natively for Android. Th
 
 ## 📸 Screenshots
 
-| Feed Layout | Upvote/Downvote Logic | Image Upload |
+| Login Screen | Feed Layout | Image Upload |
 | :---: | :---: | :---: |
-| ![Feed] ![WhatsApp Image 2026-03-08 at 1 11 32 PM (1)](https://github.com/user-attachments/assets/5c310fd7-1766-493c-8333-6dd979b537b0) | ![Voting] ![upvote and downvote](https://github.com/user-attachments/assets/8121abf9-0a2b-4bad-9b1d-fd5ad11ea46d) | ![Upload] ![upload](https://github.com/user-attachments/assets/c406bbae-5a4f-4b06-8c0d-73c50dd2b913)
- |
+|  ![WhatsApp Image 2026-03-08 at 1 11 33 PM (1)](https://github.com/user-attachments/assets/6b769bc9-c723-43e8-8d65-6669718d34e7) | ![WhatsApp Image 2026-03-08 at 1 11 32 PM (1)](https://github.com/user-attachments/assets/5c310fd7-1766-493c-8333-6dd979b537b0)  |![upload](https://github.com/user-attachments/assets/8f6bb95b-263a-42f3-9a5a-8cb059f63133)
+  
 
 ## 🧠 Architecture Highlights
 
@@ -43,7 +43,7 @@ To run this project locally, you will need to connect it to your own Firebase pr
 
 1.  Clone the repository:
     ```bash
-    git clone [https://github.com/YourUsername/YourRepoName.git](https://github.com/YourUsername/YourRepoName.git)
+    git clone https://github.com/SujalSinghNegi/reddit.git
     ```
 2.  Open the project in **Android Studio**.
 3.  Go to the [Firebase Console](https://console.firebase.google.com/) and create a new project.
