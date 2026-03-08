@@ -1,6 +1,6 @@
 # Reddit Clone - Android Social Platform
 
-![Banner Image](PLACEHOLDER_FOR_BANNER_IMAGE_URL)
+![Banner Image][WhatsApp Image 2026-03-08 at 1 11 33 PM](https://github.com/user-attachments/assets/f34c5fe9-648e-47a9-8f5f-4dec5e4b3685) 
 
 A fully functional, high-performance Reddit clone built natively for Android. This project demonstrates modern Android development practices, real-time database synchronization, and complex state management. 
 
@@ -26,7 +26,8 @@ A fully functional, high-performance Reddit clone built natively for Android. Th
 
 | Feed Layout | Upvote/Downvote Logic | Image Upload |
 | :---: | :---: | :---: |
-| ![Feed](PLACEHOLDER_FOR_FEED_IMAGE_URL) | ![Voting](PLACEHOLDER_FOR_VOTE_IMAGE_URL) | ![Upload](PLACEHOLDER_FOR_UPLOAD_IMAGE_URL) |
+| ![Feed] ![WhatsApp Image 2026-03-08 at 1 11 32 PM (1)](https://github.com/user-attachments/assets/5c310fd7-1766-493c-8333-6dd979b537b0) | ![Voting] ![upvote and downvote](https://github.com/user-attachments/assets/8121abf9-0a2b-4bad-9b1d-fd5ad11ea46d) | ![Upload] ![upload](https://github.com/user-attachments/assets/c406bbae-5a4f-4b06-8c0d-73c50dd2b913)
+ |
 
 ## 🧠 Architecture Highlights
 
